@@ -1,0 +1,24 @@
+name: "get next version from tags"
+description: "not necessarily semver"
+
+inputs:
+  step:
+    description: 'version incrementer step (patch, minor, major)'
+    required: false
+    default: 'patch'
+  force:
+    description: 'force next version'
+    required: false
+    default: ''
+
+outputs:
+  next_version:
+    description: "next version"
+
+runs:
+  using: 'node12'
+  main: 'index.js'
+
+branding:
+  icon: refresh-cw
+  color: blue

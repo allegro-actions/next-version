@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@actions/core": "^1.4.0",
+    "semver": "^7.3.5"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^27.0.6"
+  }
+}
