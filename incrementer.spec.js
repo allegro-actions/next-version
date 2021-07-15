@@ -31,4 +31,9 @@ describe('incrementer', () => {
         expect(incrementer.increment('tast-tag')).toBe(null);
     });
 
+    test('should increment 1 version accordingly to prefix', () => {
+        // expect
+        expect(incrementer.increment('1',{}, {type: 'service'})).toBe('2');
+        expect(incrementer.increment('1', {prefix: 'v'}, {type: 'service'})).toBe('v2');
+    });
 })

@@ -11,8 +11,9 @@ process.on('unhandledRejection', up => {
     const currentBranch = process.env['GITHUB_HEAD_REF'] || process.env['GITHUB_REF'].split('/').pop();
     const latestTag = await getLatestTag();
     const force = core.getInput('force');
+    const type = core.getInput('type')
 
-    action(step, currentBranch, latestTag, force)
+    action(step, currentBranch, latestTag, force, type)
         .then(nextVersion => core.setOutput('version', nextVersion))
         .catch(reason => {
             core.setFailed(reason);

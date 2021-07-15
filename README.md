@@ -46,8 +46,17 @@ You can also force next version.
   with:
     force: '4.0.0'
   ```
-
 **Parameter force will be ignored if not valid version string provided.**
+
+You can also skip semver convention and use service next version e.g., n -> n + 1.
+
+```yaml
+- name: get next version
+  id: 'bump'
+  uses: allegro-actions/next-version@v1
+  with:
+    type: 'service'
+  ```
 
 ## Use cases
 
