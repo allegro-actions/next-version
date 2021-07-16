@@ -1,0 +1,23 @@
+{
+  "name": "next-version",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "ncc build index.js -o dist --source-map --license licenses.txt",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/allegro-actions/next-version.git"
+  },
+  "dependencies": {
+    "@actions/core": "^1.4.0",
+    "semver": "^7.3.5"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.28.6",
+    "eslint": "^7.30.0",
+    "eslint-plugin-jest": "^24.3.6",
+    "jest": "^27.0.6"
+  }
+}

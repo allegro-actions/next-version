@@ -1,0 +1,32 @@
+name: "RELEASE"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: version
+        required: true
+
+jobs:
+  release:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 12.x
+          cache: 'npm'
+      - name: build on branch
+        run: |
+          npm ci
+          npm run build
+          git config --global user.email "opensource@allegro.pl"
+          git config --global user.name "opensource"
+          git checkout -b $VERSION
+          git add dist -f
+          git commit -a -m "$VERSION release"
+          git push origin $VERSION
+        env:
+          VERSION: ${{ github.event.inputs.version }}

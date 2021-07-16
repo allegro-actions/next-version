@@ -1,0 +1,34 @@
+name: "get next tag"
+description: "next tag basen on git history"
+
+inputs:
+  prefix:
+    description: 'tag prefix'
+    required: true
+    default: 'v'
+
+  versioning:
+    description: 'version format'
+    required: true
+    default: 'semver'
+
+  force:
+    description: 'force next version'
+    required: false
+    default: ''
+
+outputs:
+  current_tag:
+    description: "current tag"
+  next_tag:
+    description: "next tag"
+  next_version:
+    description: "next version without prefix"
+
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+
+branding:
+  icon: refresh-cw
+  color: blue
