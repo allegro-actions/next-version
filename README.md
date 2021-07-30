@@ -20,11 +20,12 @@ Supports semver tags and custom formats.
   id: 'bump'
   uses: allegro-actions/next-version@v1
 
-- name: git tag
-    if: github.ref == 'refs/heads/master'
-    run: |
-      git tag ${{ steps.bump.outputs.next_tag }}
-      git push origin HEAD --tags
+- name: Push new tag on master
+  if: github.ref == 'refs/heads/master'
+  uses: allegro-actions/create-tag@v1
+  with:
+    tag: ${{ steps.bump.outputs.next_tag }}
+    current-tag: ${{ steps.bump.outputs.current_tag }}
   ```
 
 Will output v1.0.1 (assuming v1.0.0 tag exists)
