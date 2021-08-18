@@ -1,0 +1,14 @@
+name: "get next npm beta version"
+description: "next npm beta version based on npm version list"
+
+outputs:
+  next_beta_version:
+    description: "next version with beta. suffix"
+
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+
+branding:
+  icon: refresh-cw
+  color: blue
