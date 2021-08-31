@@ -27,6 +27,6 @@ jobs:
           git checkout -b $VERSION
           git add dist -f
           git commit -a -m "$VERSION release"
-          git push origin $VERSION
+          git push origin $VERSION -f
         env:
           VERSION: ${{ github.event.inputs.version }}
