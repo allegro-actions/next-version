@@ -4,10 +4,10 @@ describe('action', () => {
 
   test('increments version', () => {
     // expect
-    expect(action({ versioning: 'semver' }, () => 'v1.0.1')).toEqual({
-      'currentTag': 'v1.0.1',
-      'nextTag': 'v1.0.2',
-      'nextVersion': '1.0.2'
+    expect(action({ versioning: 'semver' }, () => 'v1.0.0')).toEqual({
+      'currentTag': 'v1.0.0',
+      'nextTag': 'v1.0.1',
+      'nextVersion': '1.0.1'
     });
     expect(action({ versioning: 'single-number' }, () => 'v1')).toEqual({
       'currentTag': 'v1',
@@ -25,37 +25,34 @@ describe('action', () => {
     });
     expect(action({ versioning: 'single-number', preReleaseSuffix: 'RC', level: 'prerelease' }, () => 'v1')).toEqual({
       'currentTag': 'v1',
-      'nextTag': 'v2',
-      'nextVersion': '2'
+      'nextTag': 'v2-RC.0',
+      'nextVersion': '2-RC.0'
     });
     expect(action({ versioning: 'semver', preReleaseSuffix: 'RC', level: 'prerelease' }, () => 'v1.0.0-RC.0')).toEqual({
       'currentTag': 'v1.0.0-RC.0',
       'nextTag': 'v1.0.0-RC.1',
       'nextVersion': '1.0.0-RC.1'
     });
-    expect(action({ versioning: 'single-number', preReleaseSuffix: 'RC', level: 'prerelease' }, () => 'v1-RC.0')).toEqual({
-      'currentTag': 'v1-RC.0',
-      'nextTag': 'v2',
-      'nextVersion': '2'
+    expect(action({ versioning: 'single-number', preReleaseSuffix: 'RC', level: 'prerelease' }, () => 'v1-RC.1')).toEqual({
+      'currentTag': 'v1-RC.1',
+      'nextTag': 'v1-RC.2',
+      'nextVersion': '1-RC.2'
     });
   });
 
   test('remove pre release suffix for patch level', () => {
     // expect
-    expect(action({ versioning: 'semver', preReleaseSuffix: 'RC', level: 'patch' }, () => 'v1.0.0-RC.0')).toEqual({
-      'currentTag': 'v1.0.0-RC.0',
+    expect(action({ versioning: 'semver', preReleaseSuffix: 'RC', level: 'patch' }, () => 'v1.0.0-RC.1')).toEqual({
+      'currentTag': 'v1.0.0-RC.1',
       'nextTag': 'v1.0.0',
       'nextVersion': '1.0.0'
     });
-    expect(action({ versioning: 'single-number', preReleaseSuffix: 'RC', level: 'patch' }, () => 'v1-RC.0')).toEqual({
-      'currentTag': 'v1-RC.0',
-      'nextTag': 'v2',
-      'nextVersion': '2'
+    expect(action({ versioning: 'single-number', preReleaseSuffix: 'RC', level: 'patch' }, () => 'v5-RC.1')).toEqual({
+      'currentTag': 'v5-RC.1',
+      'nextTag': 'v5',
+      'nextVersion': '5'
     });
   });
-
-
-
 
   test('when there is no suffix for pre release', () => {
     // expect

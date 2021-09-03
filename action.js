@@ -11,7 +11,7 @@ const { getLatestTag } = require('./git-commands');
 module.exports = function action({ prefix = 'v', versioning = 'semver', force, preReleaseSuffix = '', level = 'patch' }, tagExtractor = getLatestTag) {
 
   const latestTag = tagExtractor(prefix);
-  let PRERELEASE_LEVEL_NAME = 'prerelease';
+  const PRERELEASE_LEVEL_NAME = 'prerelease';
 
   if (force) return { 'currentTag': latestTag || '', 'nextTag': prefix + force, 'nextVersion': force };
 
@@ -30,7 +30,7 @@ module.exports = function action({ prefix = 'v', versioning = 'semver', force, p
   if (latestTag === null) {
     switch (versioning) {
       case 'semver': {
-        let initVersion = '0.0.0';
+        const initVersion = '0.0.0';
         return {
           currentTag: '',
           nextTag: `${prefix}${semver.inc(initVersion, level, preReleaseSuffix)}`,
@@ -65,12 +65,47 @@ module.exports = function action({ prefix = 'v', versioning = 'semver', force, p
         };
     }
     case 'single-number': {
-      const versionInt = parseInt(version, 10);
-      if (isNaN(versionInt)) throw new Error(`version ${version} not a valid number`);
+      const isPreRelease = version.includes('-' + preReleaseSuffix);
+
+      if (isPreRelease && level !== PRERELEASE_LEVEL_NAME) {
+        const versionInt = parseInt(version, 10);
+        if (isNaN(versionInt)) throw new Error(`version ${version} not a valid number`);
+        return {
+          currentTag: latestTag,
+          nextTag: `${prefix}${versionInt}`,
+          nextVersion: `${versionInt}`
+        };
+      }
+
+      const [singleNumberVersion, suffix] = version.split(`-${preReleaseSuffix}.`, 2);
+      const nextPreReleaseVersion = suffix ? parseInt(suffix,10) + 1 : 0;
+
+      if (isPreRelease && level === PRERELEASE_LEVEL_NAME) {
+        const nextVersion2 = `${singleNumberVersion}-${preReleaseSuffix}.${nextPreReleaseVersion}`;
+
+        return {
+          currentTag: latestTag,
+          nextTag: `${prefix}${nextVersion2}`,
+          nextVersion: `${nextVersion2}`
+        };
+      }
+
+      if (!isPreRelease && level !== PRERELEASE_LEVEL_NAME) {
+        const nextVersion3 = `${parseInt(singleNumberVersion, 10) + 1}`;
+
+        return {
+          currentTag: latestTag,
+          nextTag: `${prefix}${nextVersion3}`,
+          nextVersion: `${nextVersion3}`
+        };
+      }
+
+      const nextVersion = `${parseInt(singleNumberVersion, 10) + 1}-${preReleaseSuffix}.${nextPreReleaseVersion}`;
+
       return {
         currentTag: latestTag,
-        nextTag: `${prefix}${versionInt + 1}`,
-        nextVersion: `${versionInt + 1}`
+        nextTag: `${prefix}${nextVersion}`,
+        nextVersion: nextVersion
       };
     }
   }
