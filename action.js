@@ -23,33 +23,32 @@ module.exports = function action({ prefix = 'v', versioning = 'semver', force, p
     throw new Error(`Invalid level name: ${level}`);
   }
 
-  if (level === PRERELEASE_LEVEL_NAME && preReleaseSuffix === '') {
+  function isPreReleaseLevel() {
+    return level === PRERELEASE_LEVEL_NAME;
+  }
+
+  if (isPreReleaseLevel() && preReleaseSuffix === '') {
     throw new Error(`There is no pre release suffix for level: ${level}`);
   }
 
   if (latestTag === null) {
-    switch (versioning) {
-      case 'semver': {
-        const initVersion = '0.0.0';
-        return {
-          currentTag: '',
-          nextTag: `${prefix}${semver.inc(initVersion, level, preReleaseSuffix)}`,
-          nextVersion: semver.inc(initVersion, level, preReleaseSuffix)
-        };
-      }
-      case 'single-number': {
-        let suffix = '';
-        if (level === PRERELEASE_LEVEL_NAME) {
-          suffix = `-${preReleaseSuffix}.0`;
-        }
-        return {
-          currentTag: '',
-          nextTag: `${prefix}1${suffix}`,
-          nextVersion: `1${suffix}`
-        };
-      }
+    let calculatedPreReleaseVersion = '';
+
+    if (level === PRERELEASE_LEVEL_NAME) {
+      calculatedPreReleaseVersion = `-${preReleaseSuffix}.0`;
     }
+    let calculatedNextVersion = '';
+
+    if ( versioning === 'semver') calculatedNextVersion = `0.0.1${calculatedPreReleaseVersion}`;
+    if ( versioning === 'single-number') calculatedNextVersion = `1${calculatedPreReleaseVersion}`;
+
+    return {
+      currentTag: '',
+      nextTag: `${prefix}${calculatedNextVersion}`,
+      nextVersion: `${calculatedNextVersion}`
+    };
   }
+
   if (!latestTag.startsWith(prefix)) {
     throw new Error(`expecting provided tag ${latestTag} to start with ${prefix}`);
   }
@@ -65,47 +64,33 @@ module.exports = function action({ prefix = 'v', versioning = 'semver', force, p
         };
     }
     case 'single-number': {
-      const isPreRelease = version.includes('-' + preReleaseSuffix);
-
-      if (isPreRelease && level !== PRERELEASE_LEVEL_NAME) {
-        const versionInt = parseInt(version, 10);
-        if (isNaN(versionInt)) throw new Error(`version ${version} not a valid number`);
-        return {
-          currentTag: latestTag,
-          nextTag: `${prefix}${versionInt}`,
-          nextVersion: `${versionInt}`
-        };
-      }
+      let calculatedNextVersion = '';
+      const isPreReleasedTag = version.includes('-' + preReleaseSuffix);
 
       const [singleNumberVersion, suffix] = version.split(`-${preReleaseSuffix}.`, 2);
       const nextPreReleaseVersion = suffix ? parseInt(suffix,10) + 1 : 0;
 
-      if (isPreRelease && level === PRERELEASE_LEVEL_NAME) {
-        const nextVersion2 = `${singleNumberVersion}-${preReleaseSuffix}.${nextPreReleaseVersion}`;
-
-        return {
-          currentTag: latestTag,
-          nextTag: `${prefix}${nextVersion2}`,
-          nextVersion: `${nextVersion2}`
-        };
+      if (isPreReleasedTag && isPreReleaseLevel()) {
+        calculatedNextVersion = `${singleNumberVersion}-${preReleaseSuffix}.${nextPreReleaseVersion}`;
       }
 
-      if (!isPreRelease && level !== PRERELEASE_LEVEL_NAME) {
-        const nextVersion3 = `${parseInt(singleNumberVersion, 10) + 1}`;
-
-        return {
-          currentTag: latestTag,
-          nextTag: `${prefix}${nextVersion3}`,
-          nextVersion: `${nextVersion3}`
-        };
+      if (isPreReleasedTag && !isPreReleaseLevel()) {
+        calculatedNextVersion = parseInt(version, 10);
+        if (isNaN(calculatedNextVersion)) throw new Error(`version ${version} not a valid number`);
       }
 
-      const nextVersion = `${parseInt(singleNumberVersion, 10) + 1}-${preReleaseSuffix}.${nextPreReleaseVersion}`;
+      if (!isPreReleasedTag && isPreReleaseLevel()) {
+        calculatedNextVersion = `${parseInt(singleNumberVersion, 10) + 1}-${preReleaseSuffix}.${nextPreReleaseVersion}`;
+      }
+
+      if (!isPreReleasedTag && !isPreReleaseLevel()) {
+        calculatedNextVersion = `${parseInt(singleNumberVersion, 10) + 1}`;
+      }
 
       return {
         currentTag: latestTag,
-        nextTag: `${prefix}${nextVersion}`,
-        nextVersion: nextVersion
+        nextTag: `${prefix}${calculatedNextVersion}`,
+        nextVersion: `${calculatedNextVersion}`
       };
     }
   }
