@@ -4,7 +4,7 @@ const action = require('./action');
 const prefix = core.getInput('prefix');
 const versioning = core.getInput('versioning');
 const force = core.getInput('force');
-const preReleaseSuffix = core.getInput('preReleaseSuffix');
+const preReleaseSuffix = core.getInput('pre-release-suffix');
 const level = core.getInput('level');
 
 reportAction();
