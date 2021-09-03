@@ -4,10 +4,12 @@ const action = require('./action');
 const prefix = core.getInput('prefix');
 const versioning = core.getInput('versioning');
 const force = core.getInput('force');
+const preReleaseSuffix = core.getInput('preReleaseSuffix');
+const level = core.getInput('level');
 
 reportAction();
 
-const { currentTag, nextTag, nextVersion } = action({ prefix, versioning, force });
+const { currentTag, nextTag, nextVersion } = action({ prefix, versioning, force, preReleaseSuffix, level });
 core.setOutput('current_tag', currentTag);
 core.setOutput('next_tag', nextTag);
 core.setOutput('next_version', nextVersion);
