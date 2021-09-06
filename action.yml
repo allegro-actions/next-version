@@ -17,6 +17,16 @@ inputs:
     required: false
     default: ''
 
+  pre-release-suffix:
+    description: 'suffix for pre-release version'
+    required: false
+    default: ''
+
+  level:
+    description: 'incrementing level, possible values: "major", "minor", "patch", "premajor", "preminor", "prepatch", or "prerelease"'
+    required: true
+    default: 'patch'
+
 outputs:
   current_tag:
     description: "current tag"
