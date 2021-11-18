@@ -1,5 +1,5 @@
 const semver = require('semver');
-const { getLatestTag } = require('./git-commands');
+const {getLatestTag} = require('./git-commands');
 
 /**
  * @param prefix
@@ -8,12 +8,21 @@ const { getLatestTag } = require('./git-commands');
  * @param tagExtractor
  * @returns {string|*}
  */
-module.exports = function action({ prefix = 'v', versioning = 'semver', force, preReleaseSuffix = '', level = 'patch' }, tagExtractor = getLatestTag) {
+module.exports = function action(
+  {
+    prefix = 'v',
+    versioning = 'semver',
+    force,
+    preReleaseSuffix = '',
+    level = 'patch'
+  },
+  tagExtractor = getLatestTag
+) {
 
   const latestTag = tagExtractor(prefix);
   const PRERELEASE_LEVEL_NAME = 'prerelease';
 
-  if (force) return { 'currentTag': latestTag || '', 'nextTag': prefix + force, 'nextVersion': force };
+  if (force) return {'currentTag': latestTag || '', 'nextTag': prefix + force, 'nextVersion': force};
 
   if (!['semver', 'single-number'].includes(versioning)) {
     throw new Error(`unknown versioning '${versioning}'`);
@@ -32,15 +41,11 @@ module.exports = function action({ prefix = 'v', versioning = 'semver', force, p
   }
 
   if (latestTag === null) {
-    let calculatedPreReleaseVersion = '';
-
-    if (level === PRERELEASE_LEVEL_NAME) {
-      calculatedPreReleaseVersion = `-${preReleaseSuffix}.0`;
-    }
+    let calculatedPreReleaseVersion = isPreReleaseLevel() ? `-${preReleaseSuffix}.0` : '';
     let calculatedNextVersion = '';
 
-    if ( versioning === 'semver') calculatedNextVersion = `0.0.1${calculatedPreReleaseVersion}`;
-    if ( versioning === 'single-number') calculatedNextVersion = `1${calculatedPreReleaseVersion}`;
+    if (versioning === 'semver') calculatedNextVersion = `0.0.1${calculatedPreReleaseVersion}`;
+    if (versioning === 'single-number') calculatedNextVersion = `1${calculatedPreReleaseVersion}`;
 
     return {
       currentTag: '',
@@ -57,18 +62,18 @@ module.exports = function action({ prefix = 'v', versioning = 'semver', force, p
   switch (versioning) {
     case 'semver': {
       if (!semver.valid(version)) throw new Error(`version ${version} not a valid semver string`);
-        return {
-          currentTag: latestTag,
-          nextTag: `${prefix}${semver.inc(version, level, preReleaseSuffix)}`,
-          nextVersion: semver.inc(version, level, preReleaseSuffix)
-        };
+      return {
+        currentTag: latestTag,
+        nextTag: `${prefix}${semver.inc(version, level, preReleaseSuffix)}`,
+        nextVersion: semver.inc(version, level, preReleaseSuffix)
+      };
     }
     case 'single-number': {
       let calculatedNextVersion = '';
       const isPreReleasedTag = version.includes('-' + preReleaseSuffix);
 
       const [singleNumberVersion, suffix] = version.split(`-${preReleaseSuffix}.`, 2);
-      const nextPreReleaseVersion = suffix ? parseInt(suffix,10) + 1 : 0;
+      const nextPreReleaseVersion = suffix ? parseInt(suffix, 10) + 1 : 0;
 
       if (isPreReleasedTag && isPreReleaseLevel()) {
         calculatedNextVersion = `${singleNumberVersion}-${preReleaseSuffix}.${nextPreReleaseVersion}`;
