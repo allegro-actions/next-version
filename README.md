@@ -1,5 +1,6 @@
 [![CI](https://github.com/allegro-actions/next-version/actions/workflows/ci.yml/badge.svg)](https://github.com/allegro-actions/next-version/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/allegro-actions/next-version/branch/main/graph/badge.svg?token=YJ3Z8ZKL2F)](https://codecov.io/gh/allegro-actions/next-version)
+![Usage](https://shields.gh-stats.app/badge?action=allegro-actions/next-version)
 
 # allegro-actions/next-version
 
