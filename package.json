@@ -11,7 +11,7 @@
     "url": "git+https://github.com/allegro-actions/next-version.git"
   },
   "dependencies": {
-    "@actions/core": "^1.6.0",
+    "@actions/core": "^1.7.0",
     "@gh-stats/reporter": "^1.0.6",
     "semver": "^7.3.7"
   },
