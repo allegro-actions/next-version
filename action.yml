@@ -36,7 +36,7 @@ outputs:
     description: "next version without prefix"
 
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
 
 branding:
