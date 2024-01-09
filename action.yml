@@ -1,5 +1,5 @@
-name: "get next tag"
-description: "next tag based on git history"
+name: 'get next tag'
+description: 'next tag based on git history'
 
 inputs:
   prefix:
@@ -39,11 +39,11 @@ inputs:
 
 outputs:
   current_tag:
-    description: "current tag"
+    description: 'current tag'
   next_tag:
-    description: "next tag"
+    description: 'next tag'
   next_version:
-    description: "next version without prefix"
+    description: 'next version without prefix'
 
 runs:
   using: 'node16'

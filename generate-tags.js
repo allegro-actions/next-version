@@ -1,5 +1,5 @@
 const semver = require('semver');
-const {getLatestTag} = require('./git-commands');
+const { getLatestTag } = require('./git-commands');
 
 /**
  * @typedef {Object} GeneratedTags
@@ -18,20 +18,13 @@ const {getLatestTag} = require('./git-commands');
  * @returns {GeneratedTags}
  */
 module.exports = function generateTags(
-  {
-    prefix = 'v',
-    versioning = 'semver',
-    force,
-    preReleaseSuffix = '',
-    level = 'patch'
-  },
-  tagExtractor = getLatestTag
+  { prefix = 'v', versioning = 'semver', force, preReleaseSuffix = '', level = 'patch' },
+  tagExtractor = getLatestTag,
 ) {
-
   const latestTag = tagExtractor(prefix);
   const PRERELEASE_LEVEL_NAME = 'prerelease';
 
-  if (force) return {'currentTag': latestTag || '', 'nextTag': prefix + force, 'nextVersion': force};
+  if (force) return { currentTag: latestTag || '', nextTag: prefix + force, nextVersion: force };
 
   if (!['semver', 'single-number'].includes(versioning)) {
     throw new Error(`unknown versioning '${versioning}'`);
@@ -59,7 +52,7 @@ module.exports = function generateTags(
     return {
       currentTag: '',
       nextTag: `${prefix}${calculatedNextVersion}`,
-      nextVersion: `${calculatedNextVersion}`
+      nextVersion: `${calculatedNextVersion}`,
     };
   }
 
@@ -74,7 +67,7 @@ module.exports = function generateTags(
       return {
         currentTag: latestTag,
         nextTag: `${prefix}${semver.inc(version, level, preReleaseSuffix)}`,
-        nextVersion: semver.inc(version, level, preReleaseSuffix)
+        nextVersion: semver.inc(version, level, preReleaseSuffix),
       };
     }
     case 'single-number': {
@@ -104,7 +97,7 @@ module.exports = function generateTags(
       return {
         currentTag: latestTag,
         nextTag: `${prefix}${calculatedNextVersion}`,
-        nextVersion: `${calculatedNextVersion}`
+        nextVersion: `${calculatedNextVersion}`,
       };
     }
   }

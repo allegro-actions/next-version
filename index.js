@@ -12,14 +12,22 @@ const retries = Number(core.getInput('retries'));
 reportAction();
 
 try {
-    const {currentTag, nextTag, nextVersion} = action({ prefix, versioning, force, preReleaseSuffix, level, pushNewTag, retries });
-    core.setOutput('current_tag', currentTag);
-    core.setOutput('next_tag', nextTag);
-    core.setOutput('next_version', nextVersion);
+  const { currentTag, nextTag, nextVersion } = action({
+    prefix,
+    versioning,
+    force,
+    preReleaseSuffix,
+    level,
+    pushNewTag,
+    retries,
+  });
+  core.setOutput('current_tag', currentTag);
+  core.setOutput('next_tag', nextTag);
+  core.setOutput('next_version', nextVersion);
 
-    core.info(`Current tag: ${currentTag}`);
-    core.info(`Next tag: ${nextTag}`);
-    core.info(`Next version: ${nextVersion}`);
-} catch(e) {
-    core.setFailed(e);
+  core.info(`Current tag: ${currentTag}`);
+  core.info(`Next tag: ${nextTag}`);
+  core.info(`Next version: ${nextVersion}`);
+} catch (e) {
+  core.setFailed(e);
 }

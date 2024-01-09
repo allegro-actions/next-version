@@ -14,39 +14,31 @@ const { getLatestTag } = require('./git-commands');
  * @returns {GeneratedTags}
  */
 module.exports = function action(
-    {
-        prefix,
-        versioning,
-        force,
-        preReleaseSuffix,
-        level,
-        pushNewTag,
-        retries
-    },
-    tagExtractor = getLatestTag
+  { prefix, versioning, force, preReleaseSuffix, level, pushNewTag, retries },
+  tagExtractor = getLatestTag,
 ) {
-    let retriesLeft = clampRetries(retries);
-    while(retriesLeft >= 0) {
-        const tags = generateTags({prefix, versioning, force, preReleaseSuffix, level}, tagExtractor);
-        try {
-            if (pushNewTag) {
-                gitCommands.pushNewTag(tags.nextTag);
-            }
-            return tags;
-        } catch(e) {
-            if(retriesLeft > 0) {
-                retriesLeft --;
-            } else {
-                throw e;
-            }
-        }
+  let retriesLeft = clampRetries(retries);
+  while (retriesLeft >= 0) {
+    const tags = generateTags({ prefix, versioning, force, preReleaseSuffix, level }, tagExtractor);
+    try {
+      if (pushNewTag) {
+        gitCommands.pushNewTag(tags.nextTag);
+      }
+      return tags;
+    } catch (e) {
+      if (retriesLeft > 0) {
+        retriesLeft--;
+      } else {
+        throw e;
+      }
     }
-    throw new Error(`Failed to generate tags in ${retries} retries`);// Should never occur
+  }
+  throw new Error(`Failed to generate tags in ${retries} retries`); // Should never occur
 };
 /**
  * @param {number} retries
  * @return {number}
  */
 function clampRetries(retries) {
-    return Math.max(0, Math.min(10, retries)) || 0;
+  return Math.max(0, Math.min(10, retries)) || 0;
 }

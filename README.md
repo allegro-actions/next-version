@@ -29,7 +29,7 @@ Additionally, it can also create and push the selected tag.
   with:
     tag: ${{ steps.bump.outputs.next_tag }}
     current-tag: ${{ steps.bump.outputs.current_tag }}
-  ```
+```
 
 Will output v1.0.1 (assuming v1.0.0 tag exists)
 
@@ -45,7 +45,7 @@ You can change prefix to handle **my-app-1.0.0** tag
   uses: allegro-actions/next-version@v1
   with:
     prefix: 'my-app-'
-  ```
+```
 
 Will output **my-app-1.0.1** (assuming my-app-1.0.0 tag exists)
 
@@ -59,7 +59,7 @@ You can add versioning to create **v1** tag
   uses: allegro-actions/next-version@v1
   with:
     versioning: 'single-number'
-  ```
+```
 
 Will output **v2** (assuming v1 tag exists)
 
@@ -75,7 +75,7 @@ You can also force next version.
   uses: allegro-actions/next-version@v1
   with:
     force: '4.0.0'
-  ```
+```
 
 Will always output **v4.0.0**
 
@@ -93,7 +93,7 @@ If that's a concern, you can make the action do an automatic retry of generating
   with:
     push-new-tag: 'true'
     retries: '1'
-  ```
+```
 
 ## Use cases
 
@@ -123,4 +123,4 @@ jobs:
         uses: allegro-actions/next-version@v1
         with:
           force: ${{ github.event.inputs.forceVersion }}
-  ```
+```

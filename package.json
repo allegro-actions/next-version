@@ -2,13 +2,18 @@
   "name": "next-version",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "prettier --write . && eslint .",
     "build": "ncc build index.js -o dist --source-map --license licenses.txt",
-    "test": "jest"
+    "test": "jest",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/allegro-actions/next-version.git"
+  },
+  "lint-staged": {
+    "*.{js,ts}": "eslint",
+    "*.{js,ts,md,json,yml}": "prettier --write"
   },
   "dependencies": {
     "@actions/core": "^1.10.0",
@@ -20,6 +25,9 @@
     "@vercel/ncc": "^0.33.4",
     "eslint": "^8.14.0",
     "eslint-plugin-jest": "^26.2.2",
-    "jest": "^27.5.1"
+    "husky": "^8.0.3",
+    "jest": "^27.5.1",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.1.1"
   }
 }
