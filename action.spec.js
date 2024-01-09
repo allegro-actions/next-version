@@ -1,137 +1,113 @@
+jest.mock('./generate-tags', () => jest.fn());
+jest.mock('./git-commands', () => ({
+  pushNewTag: jest.fn()
+}));
+
 const action = require('./action');
+const generateTags = require('./generate-tags');
+const generateTagsMock = jest.mocked(generateTags);
+const gitCommands = require('./git-commands');
+const pushNewTagMock = jest.mocked(gitCommands.pushNewTag);
+
+const tagExtractorParams = {
+  prefix: 'my-prefix',
+  versioning: 'my-version',
+  force: 'my-force',
+  preReleaseSuffix: 'my-pre-release-suffix',
+  level: 'my-level',
+};
+
+const correctlyGeneratedTags = {
+  'currentTag': 'test-1',
+  'nextTag': 'test-2',
+  'nextVersion': 'test-3'
+};
 
 describe('action', () => {
-
-  test('increments version', () => {
-    // expect
-    expect(action({ versioning: 'semver' }, () => 'v1.0.0')).toEqual({
-      'currentTag': 'v1.0.0',
-      'nextTag': 'v1.0.1',
-      'nextVersion': '1.0.1'
-    });
-    expect(action({ versioning: 'single-number' }, () => 'v1')).toEqual({
-      'currentTag': 'v1',
-      'nextTag': 'v2',
-      'nextVersion': '2'
-    });
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  test('increments pre release version', () => {
-    // expect
-    expect(action({ versioning: 'semver', preReleaseSuffix: 'RC', level: 'prerelease' }, () => 'v1.0.0')).toEqual({
-      'currentTag': 'v1.0.0',
-      'nextTag': 'v1.0.1-RC.0',
-      'nextVersion': '1.0.1-RC.0'
-    });
-    expect(action({ versioning: 'single-number', preReleaseSuffix: 'RC', level: 'prerelease' }, () => 'v1')).toEqual({
-      'currentTag': 'v1',
-      'nextTag': 'v2-RC.0',
-      'nextVersion': '2-RC.0'
-    });
-    expect(action({ versioning: 'semver', preReleaseSuffix: 'RC', level: 'prerelease' }, () => 'v1.0.0-RC.0')).toEqual({
-      'currentTag': 'v1.0.0-RC.0',
-      'nextTag': 'v1.0.0-RC.1',
-      'nextVersion': '1.0.0-RC.1'
-    });
-    expect(action({ versioning: 'single-number', preReleaseSuffix: 'RC', level: 'prerelease' }, () => 'v1-RC.1')).toEqual({
-      'currentTag': 'v1-RC.1',
-      'nextTag': 'v1-RC.2',
-      'nextVersion': '1-RC.2'
-    });
+  test('should pass most of the parameters to generate-tags and return its result', () => {
+    const tagExtractor = jest.fn();
+    generateTagsMock.mockReturnValueOnce(correctlyGeneratedTags);
+    const result = action({...tagExtractorParams, pushNewTag: false, retries: 0}, tagExtractor);
+
+    expect(generateTagsMock).toBeCalledWith(expect.objectContaining(tagExtractorParams), tagExtractor);
+    expect(result).toBe(correctlyGeneratedTags);
   });
 
-  test('remove pre release suffix for patch level', () => {
-    // expect
-    expect(action({ versioning: 'semver', preReleaseSuffix: 'RC', level: 'patch' }, () => 'v1.0.0-RC.1')).toEqual({
-      'currentTag': 'v1.0.0-RC.1',
-      'nextTag': 'v1.0.0',
-      'nextVersion': '1.0.0'
-    });
-    expect(action({ versioning: 'single-number', preReleaseSuffix: 'RC', level: 'patch' }, () => 'v5-RC.1')).toEqual({
-      'currentTag': 'v5-RC.1',
-      'nextTag': 'v5',
-      'nextVersion': '5'
-    });
+  test('should not push new tag when pushNewTag is false', () => {
+    action({...tagExtractorParams, pushNewTag: false, retries: 0});
+
+    expect(pushNewTagMock).not.toHaveBeenCalled();
   });
 
-  test('when there is no suffix for pre release', () => {
-    // expect
-    expect(() => action({  versioning: 'semver', preReleaseSuffix: '', level: 'prerelease'  }, () => 'v1.0.0-RC.0')).toThrowError();
-    expect(() => action({  versioning: 'single-number', preReleaseSuffix: '', level: 'prerelease'  }, () => 'v1-RC.0')).toThrowError();
-  });
-
-  test('sets initial pre-release version when no release tag found', () => {
-    // expect
-    expect(action({ versioning: 'semver', preReleaseSuffix: 'RC', level: 'prerelease' }, () => null)).toEqual({
-      'currentTag': '',
-      'nextTag': 'v0.0.1-RC.0',
-      'nextVersion': '0.0.1-RC.0'
+  test('should push new tag when pushNewTag is true', () => {
+    generateTagsMock.mockReturnValueOnce({
+      nextTag: 'next-tag',
     });
-    expect(action({ versioning: 'single-number', preReleaseSuffix: 'RC', level: 'prerelease' }, () => null)).toEqual({
-      'currentTag': '',
-      'nextTag': 'v1-RC.0',
-      'nextVersion': '1-RC.0'
-    });
+    action({...tagExtractorParams, pushNewTag: true, retries: 0});
+
+    expect(pushNewTagMock).toHaveBeenCalledWith('next-tag');
   });
 
-  test('throws error when level is invalid', () => {
-    // expect
-    expect(() => action({ versioning: 'semver', preReleaseSuffix: 'RC', level: 'invalid' }, () =>  'v1.0.0-RC.0')).toThrowError();
-    expect(() => action({ versioning: 'single-number', preReleaseSuffix: 'RC', level: 'invalid' }, () =>  'v1-RC.0')).toThrowError();
+  test('should not retry when retries is > 1 but pushNewTag didn\'t throw', () => {
+    generateTagsMock.mockReturnValueOnce({ nextTag: 'next-tag' });
+    action({...tagExtractorParams, pushNewTag: true, retries: 100});
+
+    expect(generateTagsMock).toHaveBeenCalledTimes(1);
+    expect(pushNewTagMock).toHaveBeenCalledTimes(1);
   });
 
-  test('increments version with custom prefix', () => {
-    // expect
-    expect(action({
-      prefix: 'prefix-',
-      versioning: 'semver'
-    }, () => 'prefix-1.0.0')).toEqual({
-      'currentTag': 'prefix-1.0.0',
-      'nextTag': 'prefix-1.0.1',
-      'nextVersion': '1.0.1'
-    });
-    expect(action({
-      prefix: 'prefix-',
-      versioning: 'single-number'
-    }, () => 'prefix-1')).toEqual({ 'currentTag': 'prefix-1', 'nextTag': 'prefix-2', 'nextVersion': '2' });
+  test('should throw when couldn\'t push new tag and retries is 0', () => {
+    generateTagsMock.mockReturnValueOnce({ nextTag: 'next-tag' });
+    const error = new Error();
+    pushNewTagMock.mockImplementationOnce(() => { throw error; });
+
+    expect(() => action({...tagExtractorParams, pushNewTag: true, retries: 0})).toThrowError(error);
+
+    expect(generateTagsMock).toHaveBeenCalledTimes(1);
+    expect(pushNewTagMock).toHaveBeenCalledTimes(1);
   });
 
-  test('sets initial version when no release tag found', () => {
-    // expect
-    expect(action({ versioning: 'semver' }, () => null)).toEqual({
-      'currentTag': '',
-      'nextTag': 'v0.0.1',
-      'nextVersion': '0.0.1'
-    });
-    expect(action({ versioning: 'single-number' }, () => null)).toEqual({
-      'currentTag': '',
-      'nextTag': 'v1',
-      'nextVersion': '1'
-    });
+  test('should success if push has succeeded after initially throwing an error while retries is > 0', () => {
+    generateTagsMock.mockReturnValueOnce({ nextTag: 'next-tag-1' });
+    generateTagsMock.mockReturnValueOnce(correctlyGeneratedTags);
+    pushNewTagMock.mockImplementationOnce(() => { throw new Error(); });
+
+    const result = action({...tagExtractorParams, pushNewTag: true, retries: 1});
+
+    expect(result).toBe(correctlyGeneratedTags);
   });
 
-  test('sets forced version when provided', () => {
-    // expect
-    expect(action({ force: '5.0.0', versioning: 'semver' }, () => 'v4.0.0')).toEqual({
-      'currentTag': 'v4.0.0',
-      'nextTag': 'v5.0.0',
-      'nextVersion': '5.0.0'
-    });
-    expect(action({ force: '5', versioning: 'single-number' }, () => 'v3')).toEqual({
-      'currentTag': 'v3',
-      'nextTag': 'v5',
-      'nextVersion': '5'
-    });
+  test('should give up after 10 retries if push new tag always throws', () => {
+    generateTagsMock.mockReturnValue({ nextTag: 'next-tag-1' });
+    pushNewTagMock.mockImplementation(() => { throw new Error(); });
+
+    expect(() => action({...tagExtractorParams, pushNewTag: true, retries: 999})).toThrowError();
+
+    expect(generateTagsMock).toHaveBeenCalledTimes(11);
+    expect(pushNewTagMock).toHaveBeenCalledTimes(11);
   });
 
-  test('when prefix does not match which tag', () => {
-    // expect
-    expect(() => action({ prefix: 'opbox-web' }, () => 'opbox-core-4.0.0')).toThrowError();
+  test('should execute once when reties is < 0', () => {
+    generateTagsMock.mockReturnValue({ nextTag: 'next-tag-1' });
+    pushNewTagMock.mockImplementation(() => { throw new Error(); });
+
+    expect(() => action({...tagExtractorParams, pushNewTag: true, retries: -1})).toThrowError();
+
+    expect(generateTagsMock).toHaveBeenCalledTimes(1);
+    expect(pushNewTagMock).toHaveBeenCalledTimes(1);
   });
 
-  test('when prefix does not match which tag', () => {
-    // expect
-    expect(() => action({ versioning: 'custom' }, () => 'opbox-core-4.0.0')).toThrowError();
-  });
+  test('should execute once when reties is NaN', () => {
+    generateTagsMock.mockReturnValue({ nextTag: 'next-tag-1' });
+    pushNewTagMock.mockImplementation(() => { throw new Error(); });
 
+    expect(() => action({...tagExtractorParams, pushNewTag: true, retries: NaN})).toThrowError();
+
+    expect(generateTagsMock).toHaveBeenCalledTimes(1);
+    expect(pushNewTagMock).toHaveBeenCalledTimes(1);
+  });
 });

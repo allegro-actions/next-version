@@ -1,5 +1,5 @@
 name: "get next tag"
-description: "next tag basen on git history"
+description: "next tag based on git history"
 
 inputs:
   prefix:
@@ -26,6 +26,16 @@ inputs:
     description: 'incrementing level, possible values: "major", "minor", "patch", "premajor", "preminor", "prepatch", or "prerelease"'
     required: true
     default: 'patch'
+
+  push-new-tag:
+    description: 'should the action create and push the generated tag'
+    required: false
+    default: 'false'
+
+  retries:
+    description: 'how many times should the action retry generating and pushing new tag'
+    required: false
+    default: '0'
 
 outputs:
   current_tag:

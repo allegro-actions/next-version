@@ -16,6 +16,7 @@
     "semver": "^7.3.7"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.11",
     "@vercel/ncc": "^0.33.4",
     "eslint": "^8.14.0",
     "eslint-plugin-jest": "^26.2.2",

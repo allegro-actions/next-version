@@ -8,6 +8,8 @@ This action calculates next tag based on git history.
 
 Supports semver tags and custom formats.
 
+Additionally, it can also create and push the selected tag.
+
 ## Outputs
 
 `current_tag` - latest found version tag
@@ -76,6 +78,22 @@ You can also force next version.
   ```
 
 Will always output **v4.0.0**
+
+### push-new-tag
+
+You can make the next tag be automatically created and pushed.
+
+It's possible that in between selecting and pushing the tag, another process has already pushed tag with exactly the same name.
+If that's a concern, you can make the action do an automatic retry of generating and pushing a new version. It's disabled by default.
+
+```yaml
+- name: push new version
+  id: 'bump'
+  uses: allegro-actions/next-version@v1
+  with:
+    push-new-tag: 'true'
+    retries: '1'
+  ```
 
 ## Use cases
 
