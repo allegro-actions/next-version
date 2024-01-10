@@ -10,20 +10,8 @@
     "sourceType": "module"
   },
   "rules": {
-    "linebreak-style": [
-      "error",
-      "unix"
-    ],
-    "quotes": [
-      "error",
-      "single"
-    ],
-    "semi": [
-      "error",
-      "always"
-    ]
+    "linebreak-style": ["error", "unix"],
+    "semi": ["error", "always"]
   },
-  "plugins": [
-    "jest"
-  ]
+  "plugins": ["jest"]
 }
