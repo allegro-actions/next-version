@@ -1,13 +1,10 @@
 const core = require('@actions/core');
-const { reportAction } = require('@gh-stats/reporter');
 const action = require('./action');
 const prefix = core.getInput('prefix');
 const versioning = core.getInput('versioning');
 const force = core.getInput('force');
 const preReleaseSuffix = core.getInput('pre-release-suffix');
 const level = core.getInput('level');
-
-reportAction();
 
 const { currentTag, nextTag, nextVersion } = action({ prefix, versioning, force, preReleaseSuffix, level });
 core.setOutput('current_tag', currentTag);
