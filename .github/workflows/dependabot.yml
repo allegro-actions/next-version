@@ -1,0 +1,25 @@
+name: Merge dependabot pull requests
+
+on: [pull_request]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge-dependabot:
+    if: github.actor == 'dependabot[bot]'
+    name: Auto-merge dependabot pull request
+    runs-on: [self-hosted, ubuntu-latest]
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Decline dependabot pull request with SNAPSHOT version
+        if: contains(github.ref_name, 'SNAPSHOT')
+        run: gh pr close ${{ github.event.pull_request.html_url }}
+
+      - name: Auto-merge dependabot pull request
+        run: |
+          gh pr review --approve ${{ github.event.pull_request.html_url }}
+          gh pr merge --merge --auto ${{ github.event.pull_request.html_url }}
