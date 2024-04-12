@@ -10,7 +10,7 @@ jobs:
   auto-merge-dependabot:
     if: github.actor == 'dependabot[bot]'
     name: Auto-merge dependabot pull request
-    runs-on: [self-hosted, ubuntu-latest]
+    runs-on: [ubuntu-latest]
     env:
       GH_TOKEN: ${{ github.token }}
 
