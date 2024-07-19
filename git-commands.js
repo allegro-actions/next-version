@@ -6,7 +6,15 @@ module.exports = {
    */
   getLatestTag: (prefix) => {
     const maybeGrepCommand = prefix !== '' ? `| grep "^${prefix}"` : '';
-    const stdout = exec(`git tag -l ${maybeGrepCommand} | sort -V | tail -n 1`);
+    // sort -V doesn't handle suffixes
+    // we want to keep the semantic order:
+    // v1.0.0-alpha.0
+    // v1.0.0-alpha.1
+    // v1.0.0-rc.0
+    // v1.0.0
+    // v1.0.0-patch.0
+    // https://stackoverflow.com/a/40391207
+    const stdout = exec(`git tag -l ${maybeGrepCommand} | sed '/-/!{s/$/_/;}; s/-patch/_patch/' | sort -V | sed 's/_$//; s/_patch/-patch/' | tail -n 1`);
     const lastTag = String(stdout).trim();
     return lastTag === '' ? null : lastTag;
   }
