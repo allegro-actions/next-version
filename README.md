@@ -77,6 +77,18 @@ You can also force next version.
 
 Will always output **v4.0.0**
 
+### remote-tags
+
+It's possible to get the latest tag from remote origin directly, so you don't have to fetch all tags during checkout
+
+```yaml
+- name: get next tag
+  id: 'bump'
+  uses: allegro-actions/next-version@v1
+  with:
+    remote-tags: true
+  ```
+
 ## Use cases
 
 ### Adding manual control
