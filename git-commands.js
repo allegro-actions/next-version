@@ -14,7 +14,7 @@ module.exports = {
     // v1.0.0
     // v1.0.0-patch.0
     // https://stackoverflow.com/a/40391207
-    const stdout = exec(`git tag -l ${maybeGrepCommand} | sed '/-/!{s/$/_/;}; s/-patch/_patch/' | sort -V | sed 's/_$//; s/_patch/-patch/' | tail -n 1`);
+    const stdout = exec(`(git ls-remote --tags --refs origin | cut -d'/' -f3 && git tag -l) ${maybeGrepCommand} | sed '/-/!{s/$/_/;}; s/-patch/_patch/' | sort -V | sed 's/_$//; s/_patch/-patch/' | tail -n 1`);
     const lastTag = String(stdout).trim();
     return lastTag === '' ? null : lastTag;
   }
