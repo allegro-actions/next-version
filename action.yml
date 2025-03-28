@@ -27,11 +27,6 @@ inputs:
     required: true
     default: 'patch'
 
-  remote-tags:
-    description: 'extract tag from a remote origin using git ls-remote'
-    required: false
-    default: false
-
 outputs:
   current_tag:
     description: "current tag"

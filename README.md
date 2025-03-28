@@ -6,6 +6,8 @@
 
 This action calculates next tag based on git history.
 
+To get the latest tag, it checks both the local history and the origin, which means you don't have to fetch the whole git history prior to running this action.
+
 Supports semver tags and custom formats.
 
 ## Outputs
@@ -76,18 +78,6 @@ You can also force next version.
   ```
 
 Will always output **v4.0.0**
-
-### remote-tags
-
-It's possible to get the latest tag from remote origin directly, so you don't have to fetch all tags during checkout
-
-```yaml
-- name: get next tag
-  id: 'bump'
-  uses: allegro-actions/next-version@v1
-  with:
-    remote-tags: true
-  ```
 
 ## Use cases
 

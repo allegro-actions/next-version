@@ -14,13 +14,12 @@ module.exports = function action(
     versioning = 'semver',
     force,
     preReleaseSuffix = '',
-    level = 'patch',
-    remoteTags = false
+    level = 'patch'
   },
   tagExtractor = getLatestTag
 ) {
 
-  const latestTag = tagExtractor(prefix, remoteTags);
+  const latestTag = tagExtractor(prefix);
   const PRERELEASE_LEVEL_NAME = 'prerelease';
 
   if (force) return {'currentTag': latestTag || '', 'nextTag': prefix + force, 'nextVersion': force};

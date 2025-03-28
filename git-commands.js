@@ -4,7 +4,7 @@ module.exports = {
   /*
    * Returns latest tag, sorted by version or null if no tag was found
    */
-  getLatestTag: (prefix, remoteTags) => {
+  getLatestTag: (prefix) => {
     const maybeGrepCommand = prefix !== '' ? `| grep "^${prefix}"` : '';
     // sort -V doesn't handle suffixes
     // we want to keep the semantic order:
@@ -14,8 +14,7 @@ module.exports = {
     // v1.0.0
     // v1.0.0-patch.0
     // https://stackoverflow.com/a/40391207
-    const gitTagCommand = remoteTags ? 'git ls-remote --tags --refs origin | cut -d\'/\' -f3' : 'git tag -l';
-    const stdout = exec(`${gitTagCommand} ${maybeGrepCommand} | sed '/-/!{s/$/_/;}; s/-patch/_patch/' | sort -V | sed 's/_$//; s/_patch/-patch/' | tail -n 1`);
+    const stdout = exec(`(git ls-remote --tags --refs origin | cut -d'/' -f3 && git tag -l) ${maybeGrepCommand} | sed '/-/!{s/$/_/;}; s/-patch/_patch/' | sort -V | sed 's/_$//; s/_patch/-patch/' | tail -n 1`);
     const lastTag = String(stdout).trim();
     return lastTag === '' ? null : lastTag;
   }
