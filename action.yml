@@ -8,7 +8,7 @@ inputs:
     default: 'v'
 
   versioning:
-    description: 'version format'
+    description: 'version format: "semver", "single-number", or "calver"'
     required: true
     default: 'semver'
 
@@ -21,6 +21,11 @@ inputs:
     description: 'suffix for pre-release version'
     required: false
     default: ''
+
+  calver-format:
+    description: 'calver format: "YYYY.MM.MICRO", "YY.MM.MICRO", "YYYY.0M.MICRO", or "YY.0M.MICRO"'
+    required: false
+    default: 'YYYY.MM.MICRO'
 
   level:
     description: 'incrementing level, possible values: "major", "minor", "patch", "premajor", "preminor", "prepatch", or "prerelease"'

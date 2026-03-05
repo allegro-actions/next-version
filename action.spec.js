@@ -134,4 +134,164 @@ describe('action', () => {
     expect(() => action({ versioning: 'custom' }, () => 'opbox-core-4.0.0')).toThrowError();
   });
 
+  const march2025 = () => new Date(2025, 2, 15); // March 2025
+
+  test('calver: increments micro version within same month', () => {
+    expect(action({ versioning: 'calver' }, () => 'v2025.3.0', march2025)).toEqual({
+      'currentTag': 'v2025.3.0',
+      'nextTag': 'v2025.3.1',
+      'nextVersion': '2025.3.1'
+    });
+    expect(action({ versioning: 'calver' }, () => 'v2025.3.5', march2025)).toEqual({
+      'currentTag': 'v2025.3.5',
+      'nextTag': 'v2025.3.6',
+      'nextVersion': '2025.3.6'
+    });
+  });
+
+  test('calver: resets micro on month change', () => {
+    expect(action({ versioning: 'calver' }, () => 'v2025.2.5', march2025)).toEqual({
+      'currentTag': 'v2025.2.5',
+      'nextTag': 'v2025.3.0',
+      'nextVersion': '2025.3.0'
+    });
+  });
+
+  test('calver: resets micro on year change', () => {
+    expect(action({ versioning: 'calver' }, () => 'v2024.12.3', march2025)).toEqual({
+      'currentTag': 'v2024.12.3',
+      'nextTag': 'v2025.3.0',
+      'nextVersion': '2025.3.0'
+    });
+  });
+
+  test('calver: sets initial version when no tag found', () => {
+    expect(action({ versioning: 'calver' }, () => null, march2025)).toEqual({
+      'currentTag': '',
+      'nextTag': 'v2025.3.0',
+      'nextVersion': '2025.3.0'
+    });
+  });
+
+  test('calver: sets initial pre-release version when no tag found', () => {
+    expect(action({ versioning: 'calver', preReleaseSuffix: 'RC', level: 'prerelease' }, () => null, march2025)).toEqual({
+      'currentTag': '',
+      'nextTag': 'v2025.3.0-RC.0',
+      'nextVersion': '2025.3.0-RC.0'
+    });
+  });
+
+  test('calver: increments pre-release version', () => {
+    expect(action({ versioning: 'calver', preReleaseSuffix: 'RC', level: 'prerelease' }, () => 'v2025.3.0', march2025)).toEqual({
+      'currentTag': 'v2025.3.0',
+      'nextTag': 'v2025.3.1-RC.0',
+      'nextVersion': '2025.3.1-RC.0'
+    });
+    expect(action({ versioning: 'calver', preReleaseSuffix: 'RC', level: 'prerelease' }, () => 'v2025.3.1-RC.0', march2025)).toEqual({
+      'currentTag': 'v2025.3.1-RC.0',
+      'nextTag': 'v2025.3.1-RC.1',
+      'nextVersion': '2025.3.1-RC.1'
+    });
+  });
+
+  test('calver: promotes pre-release to stable', () => {
+    expect(action({ versioning: 'calver', preReleaseSuffix: 'RC', level: 'patch' }, () => 'v2025.3.1-RC.1', march2025)).toEqual({
+      'currentTag': 'v2025.3.1-RC.1',
+      'nextTag': 'v2025.3.1',
+      'nextVersion': '2025.3.1'
+    });
+  });
+
+  test('calver: resets pre-release on month change', () => {
+    expect(action({ versioning: 'calver', preReleaseSuffix: 'RC', level: 'prerelease' }, () => 'v2025.2.1-RC.3', march2025)).toEqual({
+      'currentTag': 'v2025.2.1-RC.3',
+      'nextTag': 'v2025.3.0-RC.0',
+      'nextVersion': '2025.3.0-RC.0'
+    });
+  });
+
+  test('calver: promotes pre-release from old month to new stable', () => {
+    expect(action({ versioning: 'calver', preReleaseSuffix: 'RC', level: 'patch' }, () => 'v2025.2.1-RC.0', march2025)).toEqual({
+      'currentTag': 'v2025.2.1-RC.0',
+      'nextTag': 'v2025.3.0',
+      'nextVersion': '2025.3.0'
+    });
+  });
+
+  test('calver: increments version with custom prefix', () => {
+    expect(action({
+      prefix: 'prefix-',
+      versioning: 'calver'
+    }, () => 'prefix-2025.3.0', march2025)).toEqual({
+      'currentTag': 'prefix-2025.3.0',
+      'nextTag': 'prefix-2025.3.1',
+      'nextVersion': '2025.3.1'
+    });
+  });
+
+  test('calver: YY.MM.MICRO format increments micro', () => {
+    expect(action({ versioning: 'calver', calverFormat: 'YY.MM.MICRO' }, () => 'v25.3.0', march2025)).toEqual({
+      'currentTag': 'v25.3.0',
+      'nextTag': 'v25.3.1',
+      'nextVersion': '25.3.1'
+    });
+  });
+
+  test('calver: YY.MM.MICRO format resets micro on month change', () => {
+    expect(action({ versioning: 'calver', calverFormat: 'YY.MM.MICRO' }, () => 'v25.2.5', march2025)).toEqual({
+      'currentTag': 'v25.2.5',
+      'nextTag': 'v25.3.0',
+      'nextVersion': '25.3.0'
+    });
+  });
+
+  test('calver: YY.MM.MICRO format initial version', () => {
+    expect(action({ versioning: 'calver', calverFormat: 'YY.MM.MICRO' }, () => null, march2025)).toEqual({
+      'currentTag': '',
+      'nextTag': 'v25.3.0',
+      'nextVersion': '25.3.0'
+    });
+  });
+
+  test('calver: YY.MM.MICRO format pre-release', () => {
+    expect(action({ versioning: 'calver', calverFormat: 'YY.MM.MICRO', preReleaseSuffix: 'RC', level: 'prerelease' }, () => 'v25.3.0', march2025)).toEqual({
+      'currentTag': 'v25.3.0',
+      'nextTag': 'v25.3.1-RC.0',
+      'nextVersion': '25.3.1-RC.0'
+    });
+    expect(action({ versioning: 'calver', calverFormat: 'YY.MM.MICRO', preReleaseSuffix: 'RC', level: 'prerelease' }, () => 'v25.3.1-RC.0', march2025)).toEqual({
+      'currentTag': 'v25.3.1-RC.0',
+      'nextTag': 'v25.3.1-RC.1',
+      'nextVersion': '25.3.1-RC.1'
+    });
+  });
+
+  test('calver: YYYY.0M.MICRO format with zero-padded month', () => {
+    expect(action({ versioning: 'calver', calverFormat: 'YYYY.0M.MICRO' }, () => 'v2025.03.0', march2025)).toEqual({
+      'currentTag': 'v2025.03.0',
+      'nextTag': 'v2025.03.1',
+      'nextVersion': '2025.03.1'
+    });
+  });
+
+  test('calver: YYYY.0M.MICRO format initial version', () => {
+    expect(action({ versioning: 'calver', calverFormat: 'YYYY.0M.MICRO' }, () => null, march2025)).toEqual({
+      'currentTag': '',
+      'nextTag': 'v2025.03.0',
+      'nextVersion': '2025.03.0'
+    });
+  });
+
+  test('calver: YY.0M.MICRO format', () => {
+    expect(action({ versioning: 'calver', calverFormat: 'YY.0M.MICRO' }, () => 'v25.03.2', march2025)).toEqual({
+      'currentTag': 'v25.03.2',
+      'nextTag': 'v25.03.3',
+      'nextVersion': '25.03.3'
+    });
+  });
+
+  test('calver: throws on invalid calver format', () => {
+    expect(() => action({ versioning: 'calver', calverFormat: 'INVALID' }, () => null, march2025)).toThrowError();
+  });
+
 });

@@ -14,9 +14,11 @@ module.exports = function action(
     versioning = 'semver',
     force,
     preReleaseSuffix = '',
+    calverFormat = 'YYYY.MM.MICRO',
     level = 'patch'
   },
-  tagExtractor = getLatestTag
+  tagExtractor = getLatestTag,
+  dateProvider = () => new Date()
 ) {
 
   const latestTag = tagExtractor(prefix);
@@ -24,7 +26,7 @@ module.exports = function action(
 
   if (force) return {'currentTag': latestTag || '', 'nextTag': prefix + force, 'nextVersion': force};
 
-  if (!['semver', 'single-number'].includes(versioning)) {
+  if (!['semver', 'single-number', 'calver'].includes(versioning)) {
     throw new Error(`unknown versioning '${versioning}'`);
   }
 
@@ -34,6 +36,21 @@ module.exports = function action(
 
   function isPreReleaseLevel() {
     return level === PRERELEASE_LEVEL_NAME;
+  }
+
+  const VALID_CALVER_FORMATS = ['YYYY.MM.MICRO', 'YY.MM.MICRO', 'YYYY.0M.MICRO', 'YY.0M.MICRO'];
+
+  function getCalverFormatters() {
+    if (!VALID_CALVER_FORMATS.includes(calverFormat)) {
+      throw new Error(`Invalid calver format '${calverFormat}'. Valid formats: ${VALID_CALVER_FORMATS.join(', ')}`);
+    }
+    const useShortYear = calverFormat.startsWith('YY.');
+    const usePaddedMonth = calverFormat.includes('.0M.');
+    return {
+      formatYear: (fullYear) => useShortYear ? fullYear % 100 : fullYear,
+      formatMonth: (month) => usePaddedMonth ? String(month).padStart(2, '0') : month,
+      toFullYear: (tagYear) => useShortYear ? 2000 + tagYear : tagYear
+    };
   }
 
   if (isPreReleaseLevel() && preReleaseSuffix === '') {
@@ -46,6 +63,11 @@ module.exports = function action(
 
     if (versioning === 'semver') calculatedNextVersion = `0.0.1${calculatedPreReleaseVersion}`;
     if (versioning === 'single-number') calculatedNextVersion = `1${calculatedPreReleaseVersion}`;
+    if (versioning === 'calver') {
+      const now = dateProvider();
+      const { formatYear, formatMonth } = getCalverFormatters();
+      calculatedNextVersion = `${formatYear(now.getFullYear())}.${formatMonth(now.getMonth() + 1)}.0${calculatedPreReleaseVersion}`;
+    }
 
     return {
       currentTag: '',
@@ -90,6 +112,45 @@ module.exports = function action(
 
       if (!isPreReleasedTag && !isPreReleaseLevel()) {
         calculatedNextVersion = `${parseInt(singleNumberVersion, 10) + 1}`;
+      }
+
+      return {
+        currentTag: latestTag,
+        nextTag: `${prefix}${calculatedNextVersion}`,
+        nextVersion: `${calculatedNextVersion}`
+      };
+    }
+    case 'calver': {
+      const now = dateProvider();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+      const { formatYear, formatMonth, toFullYear } = getCalverFormatters();
+
+      const isPreReleasedTag = preReleaseSuffix !== '' && version.includes('-' + preReleaseSuffix);
+      const [baseVersion, preSuffix] = version.split(`-${preReleaseSuffix}.`, 2);
+      const [tagYearRaw, tagMonthRaw, tagMicro] = baseVersion.split('.').map(Number);
+      const tagYear = toFullYear(tagYearRaw);
+      const tagMonth = tagMonthRaw;
+      const isSameMonth = year === tagYear && month === tagMonth;
+
+      let calculatedNextVersion = '';
+
+      if (isPreReleaseLevel()) {
+        if (isPreReleasedTag && isSameMonth) {
+          calculatedNextVersion = `${formatYear(tagYear)}.${formatMonth(tagMonth)}.${tagMicro}-${preReleaseSuffix}.${parseInt(preSuffix, 10) + 1}`;
+        } else if (isSameMonth) {
+          calculatedNextVersion = `${formatYear(year)}.${formatMonth(month)}.${tagMicro + 1}-${preReleaseSuffix}.0`;
+        } else {
+          calculatedNextVersion = `${formatYear(year)}.${formatMonth(month)}.0-${preReleaseSuffix}.0`;
+        }
+      } else {
+        if (isPreReleasedTag && isSameMonth) {
+          calculatedNextVersion = `${formatYear(tagYear)}.${formatMonth(tagMonth)}.${tagMicro}`;
+        } else if (isSameMonth) {
+          calculatedNextVersion = `${formatYear(year)}.${formatMonth(month)}.${tagMicro + 1}`;
+        } else {
+          calculatedNextVersion = `${formatYear(year)}.${formatMonth(month)}.0`;
+        }
       }
 
       return {
