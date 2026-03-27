@@ -1,6 +1,7 @@
 {
   "name": "next-version",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "lint": "eslint .",
     "build": "ncc build index.js -o dist --source-map --license licenses.txt",
@@ -16,9 +17,12 @@
     "semver": "^7.7.4"
   },
   "devDependencies": {
+    "@eslint/compat": "^2.0.2",
+    "@eslint/eslintrc": "^3.3.3",
+    "@eslint/js": "^10.0.1",
     "@types/jest": "^29.5.14",
     "@vercel/ncc": "^0.38.4",
-    "eslint": "^8.14.0",
+    "eslint": "^10.1.0",
     "eslint-plugin-jest": "^29.15.1",
     "jest": "^29.7.0"
   }
