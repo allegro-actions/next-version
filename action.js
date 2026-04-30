@@ -1,5 +1,5 @@
-const semver = require('semver');
-const {getLatestTag} = require('./git-commands');
+import semver from 'semver';
+import { getLatestTag } from './git-commands.js';
 
 /**
  * @param prefix
@@ -8,7 +8,7 @@ const {getLatestTag} = require('./git-commands');
  * @param tagExtractor
  * @returns {string|*}
  */
-module.exports = function action(
+export default function action(
   {
     prefix = 'v',
     versioning = 'semver',
@@ -99,4 +99,4 @@ module.exports = function action(
       };
     }
   }
-};
+}
