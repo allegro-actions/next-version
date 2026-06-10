@@ -10,6 +10,12 @@ To get the latest tag, it checks both the local history and the origin, which me
 
 Supports semver tags and custom formats.
 
+## Requirements
+
+- This action runs on the GitHub Actions `node24` runtime.
+- The implementation is bundled from an ESM codebase.
+- Consumers do not need any special workflow changes beyond using a current GitHub Actions runner.
+
 ## Outputs
 
 `current_tag` - latest found version tag
@@ -99,7 +105,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: get next tag

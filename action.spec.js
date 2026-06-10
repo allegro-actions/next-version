@@ -1,4 +1,4 @@
-const action = require('./action');
+import action from './action.js';
 
 describe('action', () => {
 
@@ -56,8 +56,8 @@ describe('action', () => {
 
   test('when there is no suffix for pre release', () => {
     // expect
-    expect(() => action({  versioning: 'semver', preReleaseSuffix: '', level: 'prerelease'  }, () => 'v1.0.0-RC.0')).toThrowError();
-    expect(() => action({  versioning: 'single-number', preReleaseSuffix: '', level: 'prerelease'  }, () => 'v1-RC.0')).toThrowError();
+    expect(() => action({  versioning: 'semver', preReleaseSuffix: '', level: 'prerelease'  }, () => 'v1.0.0-RC.0')).toThrow();
+    expect(() => action({  versioning: 'single-number', preReleaseSuffix: '', level: 'prerelease'  }, () => 'v1-RC.0')).toThrow();
   });
 
   test('sets initial pre-release version when no release tag found', () => {
@@ -76,8 +76,8 @@ describe('action', () => {
 
   test('throws error when level is invalid', () => {
     // expect
-    expect(() => action({ versioning: 'semver', preReleaseSuffix: 'RC', level: 'invalid' }, () =>  'v1.0.0-RC.0')).toThrowError();
-    expect(() => action({ versioning: 'single-number', preReleaseSuffix: 'RC', level: 'invalid' }, () =>  'v1-RC.0')).toThrowError();
+    expect(() => action({ versioning: 'semver', preReleaseSuffix: 'RC', level: 'invalid' }, () =>  'v1.0.0-RC.0')).toThrow();
+    expect(() => action({ versioning: 'single-number', preReleaseSuffix: 'RC', level: 'invalid' }, () =>  'v1-RC.0')).toThrow();
   });
 
   test('increments version with custom prefix', () => {
@@ -126,12 +126,12 @@ describe('action', () => {
 
   test('when prefix does not match which tag', () => {
     // expect
-    expect(() => action({ prefix: 'opbox-web' }, () => 'opbox-core-4.0.0')).toThrowError();
+    expect(() => action({ prefix: 'opbox-web' }, () => 'opbox-core-4.0.0')).toThrow();
   });
 
   test('when prefix does not match which tag', () => {
     // expect
-    expect(() => action({ versioning: 'custom' }, () => 'opbox-core-4.0.0')).toThrowError();
+    expect(() => action({ versioning: 'custom' }, () => 'opbox-core-4.0.0')).toThrow();
   });
 
 });
