@@ -1,5 +1,5 @@
-const core = require('@actions/core');
-const action = require('./action');
+import * as core from '@actions/core';
+import action from './action.js';
 const prefix = core.getInput('prefix');
 const versioning = core.getInput('versioning');
 const force = core.getInput('force');

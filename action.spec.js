@@ -1,4 +1,4 @@
-const action = require('./action');
+import action from './action.js';
 
 describe('action', () => {
 
