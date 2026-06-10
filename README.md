@@ -27,7 +27,7 @@ Supports semver tags and custom formats.
 ```yaml
 - name: get next version
   id: 'bump'
-  uses: allegro-actions/next-version@v1
+  uses: allegro-actions/next-version@v2
 
 - name: Push new tag on master
   if: github.ref == 'refs/heads/master'
@@ -48,7 +48,7 @@ You can change prefix to handle **my-app-1.0.0** tag
 ```yaml
 - name: get next tag
   id: 'bump'
-  uses: allegro-actions/next-version@v1
+  uses: allegro-actions/next-version@v2
   with:
     prefix: 'my-app-'
   ```
@@ -62,7 +62,7 @@ You can add versioning to create **v1** tag
 ```yaml
 - name: get next tag
   id: 'bump'
-  uses: allegro-actions/next-version@v1
+  uses: allegro-actions/next-version@v2
   with:
     versioning: 'single-number'
   ```
@@ -78,7 +78,7 @@ You can also force next version.
 ```yaml
 - name: get next tag
   id: 'bump'
-  uses: allegro-actions/next-version@v1
+  uses: allegro-actions/next-version@v2
   with:
     force: '4.0.0'
   ```
@@ -110,7 +110,7 @@ jobs:
           fetch-depth: 0
       - name: get next tag
         id: 'bump'
-        uses: allegro-actions/next-version@v1
+        uses: allegro-actions/next-version@v2
         with:
           force: ${{ github.event.inputs.forceVersion }}
   ```
